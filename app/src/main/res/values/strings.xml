@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">eAttendance</string>
+    <string name="year">Year</string>
+    <string name="department">Department</string>
+    <string name="section">Section</string>
+    <string name="user_selection_string">Please scan the barcode on your ID card to identify yourself.</string>
+    <string name="class_selection_string">Please scan the QR code for the class. Tap the button when ready.</string>
+    <string name="scan">SCAN</string>
+    <string name="next">Next</string>
+
+    <array name="years">
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+        <item>4th</item>
+    </array>
+
 </resources>
