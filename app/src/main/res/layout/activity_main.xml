@@ -11,12 +11,10 @@
         android:id="@+id/label_barcodeScan"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="26dp"
         android:layout_marginEnd="34dp"
         android:layout_marginStart="34dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="24dp"
         android:text="@string/user_selection_string"
-        app:layout_constraintBottom_toTopOf="@+id/button_scanBarcode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -24,21 +22,21 @@
     <Button
         android:id="@+id/button_scanBarcode"
         android:layout_width="137dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="64dp"
+        android:layout_height="61dp"
+        android:layout_marginBottom="63dp"
+        android:layout_marginTop="64dp"
         android:text="@string/scan"
         app:layout_constraintBottom_toTopOf="@+id/label_qrScan"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/label_barcodeScan" />
+        app:layout_constraintTop_toTopOf="@+id/label_barcodeScan" />
 
     <Button
         android:id="@+id/button_scanQr"
         android:layout_width="137dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="122dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="29dp"
         android:text="@string/scan"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/label_qrScan" />
@@ -47,20 +45,19 @@
         android:id="@+id/label_qrScan"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
         android:layout_marginEnd="34dp"
         android:layout_marginStart="34dp"
         android:text="@string/class_selection_string"
-        app:layout_constraintBottom_toTopOf="@+id/button_scanQr"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_scanBarcode" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/button_next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="21dp"
+        android:layout_marginBottom="23dp"
         android:layout_marginEnd="4dp"
         android:text="@string/next"
         android:visibility="invisible"
