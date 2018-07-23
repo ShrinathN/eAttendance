@@ -8,9 +8,26 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
+
+
+//currently set to testing URL
 
 public class MainActivity extends AppCompatActivity {
     // to be used as macros
+    final boolean USE_SSL = false;
+    final String DEBUG_TAG = "DEBUG_TAG";
+    final String CLASS_INFO_SUBMISSION_URL = "http://192.168.0.112/www/index.php";
+    final String CLASS_INFO_SUBMISSION_URL_SSL = "https://192.168.0.112/www/index.php";
     final byte BARCODE_SCAN = 1;
     final byte QRCODE_SCAN = 2;
 
@@ -24,16 +41,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(savedInstanceState != null) //meaning the activity was redrawn, so saved data from the bundle must be retrieved
+        if (savedInstanceState != null) //meaning the activity was redrawn, so saved data from the bundle must be retrieved
         {
-            barcode = (String)savedInstanceState.getSerializable("barcode"); //get the barcode string from the saved bundle
-            qrcode = (String)savedInstanceState.getSerializable("qrcode");//get the qrcode string from the saved bundle
+            barcode = (String) savedInstanceState.getSerializable("barcode"); //get the barcode string from the saved bundle
+            qrcode = (String) savedInstanceState.getSerializable("qrcode");//get the qrcode string from the saved bundle
         }
 
         //just some UI elements being declared
-        final Button button_scanBarcode = (Button)findViewById(R.id.button_scanBarcode);
-        final Button button_scanQr = (Button)findViewById(R.id.button_scanQr);
-        final Button button_next = (Button)findViewById(R.id.button_next);
+        final Button button_scanBarcode = (Button) findViewById(R.id.button_scanBarcode);
+        final Button button_scanQr = (Button) findViewById(R.id.button_scanQr);
+        final Button button_next = (Button) findViewById(R.id.button_next);
 
         //this handler-runnable combo will update the UI elements
         final Handler handlerToUpdateUi = new Handler(); //this handler will update the UI elements
@@ -64,7 +81,37 @@ public class MainActivity extends AppCompatActivity {
         button_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Runnable serverConnectRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (USE_SSL) { //TODO: Fix HTTPS/SSL operation
+                                URL url = new URL(CLASS_INFO_SUBMISSION_URL_SSL + "?staff_id=" + barcode + "&class_id=" + qrcode); //setting the URL to make the GET request
+                                Log.d(DEBUG_TAG, "Connecting to " + url.toString());
+                                Log.d(DEBUG_TAG, "RUNNING WITH SSL");
+                                HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
+                                httpsURLConnection.connect(); //connect to the server
+                                httpsURLConnection.disconnect(); //disconnect
+                            } else { //if SSL is not needed
+                                URL url = new URL(CLASS_INFO_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode); //setting the URL to make the GET request
+                                Log.d(DEBUG_TAG, "Connecting to " + url.toString());
+                                Log.d(DEBUG_TAG, "RUNNING WITHOUT SSL");
+                                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                                httpURLConnection.setRequestMethod("GET"); //setting the method of the request
+                                httpURLConnection.connect(); //connect to the URL
+                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+                                String responseFromTheServer = bufferedReader.readLine(); //read line, TODO: add code to handle other responses
+                                Log.d(DEBUG_TAG, responseFromTheServer );
+                                httpURLConnection.disconnect(); //disconnect from the server
+                            }
 
+                        } catch (Exception e) {
+                            Log.d(DEBUG_TAG, "!!!ERROR!!!-" + e.toString());
+                        }
+                    }
+                };
+                Thread thread = new Thread(serverConnectRunnable);
+                thread.start(); //starts a background thread to execute the runnable
             }
         });
 
@@ -72,16 +119,16 @@ public class MainActivity extends AppCompatActivity {
         button_scanQr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intentToScanQrCode = new Intent("com.google.zxing.client.android.SCAN");
-                startActivityForResult(intentToScanQrCode, QRCODE_SCAN);
-                }});
+                Intent intentToScanQrCode = new Intent("com.google.zxing.client.android.SCAN"); //intent to scan
+                startActivityForResult(intentToScanQrCode, QRCODE_SCAN); //starting activity for a result
+            }
+        });
     }
 
     //when the result of scanning activity is
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent)
-    {
-        if(resultCode != RESULT_CANCELED) { //only execute if the barcode scanning activity was not closed, and was successful
+    protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        if (resultCode != RESULT_CANCELED) { //only execute if the barcode scanning activity was not closed, and was successful
             if (requestCode == BARCODE_SCAN) { //if barcode was scanned
                 barcode = resultIntent.getStringExtra("SCAN_RESULT"); //set string barcode as scanned string
             } else if (requestCode == QRCODE_SCAN) { //else if qrcode was scanned
