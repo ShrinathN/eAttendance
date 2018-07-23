@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         handlerToUpdateUi.postDelayed(runnableToUpdateUi, 0);
-
         //this is the onclick listener for the barcode to identify the user
         button_scanBarcode.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,14 +60,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //this is the onclick listener for QRcode s
+        //this is the onclick listener for the next button, the button that calls the method that sends over the staff and class data, and receives the list of students in the class
+        button_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        //this is the onclick listener for QRcode scan button
         button_scanQr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intentToScanQrCode = new Intent("com.google.zxing.client.android.SCAN");
                 startActivityForResult(intentToScanQrCode, QRCODE_SCAN);
-            }
-        });
+                }});
     }
 
     //when the result of scanning activity is
@@ -91,5 +97,4 @@ public class MainActivity extends AppCompatActivity {
         outState.putSerializable("barcode", barcode);
         outState.putSerializable("qrcode", qrcode);
     }
-
 }
