@@ -7,6 +7,9 @@
     <string name="class_selection_string">Please scan the QR code for the class. Tap the button when ready.</string>
     <string name="scan">SCAN</string>
     <string name="next">Next</string>
+    <string name="present">Present</string>
+    <string name="absent">Absent</string>
+    <string name="back">Back</string>
 
     <array name="years">
         <item>1st</item>

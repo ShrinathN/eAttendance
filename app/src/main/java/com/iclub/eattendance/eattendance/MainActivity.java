@@ -1,6 +1,5 @@
 package com.iclub.eattendance.eattendance;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -9,14 +8,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 import javax.net.ssl.HttpsURLConnection;
 
 
@@ -34,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     //all the variables to be used
     public String barcode = null;
     public String qrcode = null;
+    public String toastString = null; //used to make toasts from inside a thread
 
 
     @Override
@@ -64,10 +60,16 @@ public class MainActivity extends AppCompatActivity {
 
                 if ((barcode != null) && (qrcode != null)) //if both strings are not empty, hence meaning both details have been scanned, proceed to make the next button visible
                     button_next.setVisibility(View.VISIBLE); //makes the next activity button visible
+
+                if (toastString != null) {
+                    Toast.makeText(MainActivity.this, toastString, Toast.LENGTH_LONG).show();
+                    toastString = null;
+                }
                 handlerToUpdateUi.postDelayed(this, 300); //recursion to loop the runnable indefinitely
             }
         };
         handlerToUpdateUi.postDelayed(runnableToUpdateUi, 0);
+
         //this is the onclick listener for the barcode to identify the user
         button_scanBarcode.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 Runnable serverConnectRunnable = new Runnable() {
                     @Override
                     public void run() {
+                        String responseFromTheServer; //this will contain the response from the server ofc
                         try {
                             if (USE_SSL) { //TODO: Fix HTTPS/SSL operation
                                 URL url = new URL(CLASS_INFO_SUBMISSION_URL_SSL + "?staff_id=" + barcode + "&class_id=" + qrcode); //setting the URL to make the GET request
@@ -100,11 +103,19 @@ public class MainActivity extends AppCompatActivity {
                                 httpURLConnection.setRequestMethod("GET"); //setting the method of the request
                                 httpURLConnection.connect(); //connect to the URL
                                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-                                String responseFromTheServer = bufferedReader.readLine(); //read line, TODO: add code to handle other responses
-                                Log.d(DEBUG_TAG, responseFromTheServer );
+                                responseFromTheServer = bufferedReader.readLine(); //read line, TODO: add code to handle other responses
+                                Log.d(DEBUG_TAG, responseFromTheServer);
                                 httpURLConnection.disconnect(); //disconnect from the server
                             }
-
+                            if (responseFromTheServer.compareToIgnoreCase("ERROR_ID") == 0) { //if ID is invalid
+                                toastString = "Invalid ID";
+                            } else if (responseFromTheServer.compareToIgnoreCase("ERROR_CLASS") == 0) { //if class is invalid
+                                toastString = "Invalid Class";
+                            } else {
+                                Intent intentToStartAttendanceActivity = new Intent(MainActivity.this, attendance_activity.class);
+                                intentToStartAttendanceActivity.putExtra("responseFromTheServer", responseFromTheServer);
+                                startActivity(intentToStartAttendanceActivity);
+                            }
                         } catch (Exception e) {
                             Log.d(DEBUG_TAG, "!!!ERROR!!!-" + e.toString());
                         }
