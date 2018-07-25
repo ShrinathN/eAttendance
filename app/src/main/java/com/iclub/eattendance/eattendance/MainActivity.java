@@ -21,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
     // to be used as macros
     final boolean USE_SSL = false;
     final String DEBUG_TAG = "DEBUG_TAG";
-    final String CLASS_INFO_SUBMISSION_URL = "http://192.168.0.112/www/index.php";
-    final String CLASS_INFO_SUBMISSION_URL_SSL = "https://192.168.0.112/www/index.php";
+    final String CLASS_INFO_SUBMISSION_URL = "http://192.168.0.110/www/login.php";
+    final String CLASS_INFO_SUBMISSION_URL_SSL = "https://192.168.0.112/www/login.php";
     final byte BARCODE_SCAN = 1;
     final byte QRCODE_SCAN = 2;
 
