@@ -9,8 +9,9 @@ $staff_id = $_GET["staff_id"];
 $class_id = $_GET["class_id"];
 
 
-$conn = new mysqli($servername, $username, $password,$database);
-if ($conn->connect_error) {
+$conn = new mysqli($servername, $username, $password, $database);
+if ($conn->connect_error)
+{
     die("Connection failed: " . $conn->connect_error);
 }
 

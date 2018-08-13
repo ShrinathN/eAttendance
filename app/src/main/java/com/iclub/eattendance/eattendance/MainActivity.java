@@ -21,8 +21,9 @@ public class MainActivity extends AppCompatActivity {
     // to be used as macros
     final boolean USE_SSL = false;
     final String DEBUG_TAG = "DEBUG_TAG";
+    //==============HAVE TO CHANGE==============
     final String CLASS_INFO_SUBMISSION_URL = "http://192.168.0.110/www/login.php";
-    final String CLASS_INFO_SUBMISSION_URL_SSL = "https://192.168.0.112/www/login.php";
+    final String CLASS_INFO_SUBMISSION_URL_SSL = "https://192.168.0.110/www/login.php";
     final byte BARCODE_SCAN = 1;
     final byte QRCODE_SCAN = 2;
 
@@ -30,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     public String barcode = null;
     public String qrcode = null;
     public String toastString = null; //used to make toasts from inside a thread
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
