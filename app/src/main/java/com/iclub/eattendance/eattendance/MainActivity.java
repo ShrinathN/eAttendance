@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                                 httpURLConnection.setRequestMethod("GET"); //setting the method of the request
                                 httpURLConnection.connect(); //connect to the URL
                                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-                                responseFromTheServer = bufferedReader.readLine(); //read line, TODO: add code to handle other responses
+                                responseFromTheServer = bufferedReader.readLine(); //receive the response from the server
                                 Log.d(DEBUG_TAG, responseFromTheServer);
                                 httpURLConnection.disconnect(); //disconnect from the server
                             }
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //saves activity data for resuming when the activity is redrawn (for example after an orientation change)
+        //saves activity data for resuming when the activity is redrawn (for example after an accidental or intentional orientation change)
         outState.putSerializable("barcode", barcode);
         outState.putSerializable("qrcode", qrcode);
     }

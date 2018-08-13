@@ -64,7 +64,7 @@ public class attendance_activity extends AppCompatActivity {
                 //checks if all the students in the list have been addressed already
                 if(jsonIndex == totalJsonEntries)
                 {
-                    Toast.makeText(attendance_activity.this, "Reached the end", Toast.LENGTH_LONG).show();
+                    uploadAttendance();
                 }
 
                 //calculating the number of students absent and present
@@ -125,6 +125,13 @@ public class attendance_activity extends AppCompatActivity {
     //this is to disable back press, restricting the user from going back to the login screen
     @Override
     public void onBackPressed() {
+    }
+
+
+    //this function will upload the attendance to the server
+    public void uploadAttendance()
+    {
+
     }
 }
 

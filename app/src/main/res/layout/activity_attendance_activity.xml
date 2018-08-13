@@ -62,14 +62,16 @@
 
         <Button
             android:id="@+id/button_present"
+            style="@style/Widget.AppCompat.Button"
             android:layout_width="105dp"
             android:layout_height="87dp"
             android:layout_weight="1"
-            android:backgroundTint="@android:color/holo_green_light"
-            android:text="@string/present" />
+            android:text="@string/present"
+            android:backgroundTint="@android:color/holo_green_light"/>
 
         <Button
             android:id="@+id/button_absent"
+            style="@style/Widget.AppCompat.Button"
             android:layout_width="105dp"
             android:layout_height="87dp"
             android:layout_weight="1"
