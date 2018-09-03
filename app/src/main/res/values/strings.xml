@@ -10,12 +10,5 @@
     <string name="present">Present</string>
     <string name="absent">Absent</string>
     <string name="back">Back</string>
-
-    <array name="years">
-        <item>1st</item>
-        <item>2nd</item>
-        <item>3rd</item>
-        <item>4th</item>
-    </array>
-
+    <string name="selectserver">Select Server</string>
 </resources>

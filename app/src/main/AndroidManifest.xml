@@ -18,7 +18,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".attendance_activity"></activity>
+        <activity android:name=".attendance_activity" />
+        <activity android:name=".Reattendance_activity"></activity>
     </application>
 
 </manifest>

@@ -1,10 +1,21 @@
+//Name: Shrinath Nimare
+//Description: This activity is the main and launcher activity for this application. This will enable the user to enter their details using a simple barcode reader application
 package com.iclub.eattendance.eattendance;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -16,6 +27,7 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import com.iclub.eattendance.eattendance.ServerSelectorAlert;
 
 //currently set to testing URL
 
@@ -119,11 +131,17 @@ public class MainActivity extends AppCompatActivity {
                                 toastString = "Invalid ID";
                             } else if (responseFromTheServer.compareToIgnoreCase("ERROR_CLASS") == 0) { //if class is invalid
                                 toastString = "Invalid Class";
+                            } else if (responseFromTheServer.compareToIgnoreCase("ERROR_ATTENDANCE_ALREADY_BEEN_TAKEN_FOR_TODAY") == 0) { //this means the attendance has been already taken for today, go to reattendance activity
+                                Intent intentToStartReattendanceActivity = new Intent(MainActivity.this, Reattendance_activity.class);
+                                intentToStartReattendanceActivity.putExtra("responseFromTheServer", responseFromTheServer);
+                                intentToStartReattendanceActivity.putExtra("barcode", barcode);
+                                intentToStartReattendanceActivity.putExtra("qrcode", qrcode);
+                                startActivity(intentToStartReattendanceActivity);
                             } else {
                                 Intent intentToStartAttendanceActivity = new Intent(MainActivity.this, attendance_activity.class);
                                 intentToStartAttendanceActivity.putExtra("responseFromTheServer", responseFromTheServer);
-                                intentToStartAttendanceActivity.putExtra("barcode",barcode);
-                                intentToStartAttendanceActivity.putExtra("qrcode",qrcode);
+                                intentToStartAttendanceActivity.putExtra("barcode", barcode);
+                                intentToStartAttendanceActivity.putExtra("qrcode", qrcode);
                                 startActivity(intentToStartAttendanceActivity);
                             }
                         } catch (Exception e) {
@@ -166,4 +184,36 @@ public class MainActivity extends AppCompatActivity {
         outState.putSerializable("barcode", barcode);
         outState.putSerializable("qrcode", qrcode);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.serverselectormenu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        int id = menuItem.getItemId();
+        if (id == R.id.setservermenu) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            LayoutInflater inflater = getLayoutInflater();
+            builder.setView(inflater.inflate(R.layout.serverselectorlayout,null))
+                    .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    })
+                    .show();
+        }
+        return true;
+    }
+
 }
+

@@ -1,8 +1,8 @@
 package com.iclub.eattendance.eattendance;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,14 +12,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-public class attendance_activity extends AppCompatActivity {
+import javax.net.ssl.HttpsURLConnection;
+
+public class attendance_activity extends Activity {
 
     //macros
     final boolean USE_SSL = false;
     final String DEBUG_TAG = "DEBUG_TAG";
-    final String CLASS_ATTENDANCE_SUBMISSION_URL_SSL = "https://192.168.0.110/www/attendance.php";
-    final String CLASS_ATTENDANCE_SUBMISSION_URL = "http://192.168.0.110/www/attendance.php";
+    final String CLASS_ATTENDANCE_SUBMISSION_URL = "/www/attendance.php";
 
     //defining all the UI widgets to be used
     TextView label_studentsPresent;
@@ -41,6 +46,7 @@ public class attendance_activity extends AppCompatActivity {
     public String toastString = null;
     public String qrcode = null;
     public String barcode = null;
+    public String address;
 
     //runnable and handler to update UI widgets
     final Handler handlerToUpdateUi = new Handler();
@@ -51,14 +57,14 @@ public class attendance_activity extends AppCompatActivity {
             if (jsonIndex == totalJsonEntries) {
                 button_absent.setVisibility(View.INVISIBLE);
                 button_present.setVisibility(View.INVISIBLE);
-                uploadAttendance();
+                Thread threadToUploadAttendance = new Thread(runnableToUploadAttendance);
+                threadToUploadAttendance.start();
             } else {
                 button_absent.setVisibility(View.VISIBLE);
                 button_present.setVisibility(View.VISIBLE);
             }
 
-            if(toastString != null)
-            {
+            if (toastString != null) {
                 Toast.makeText(attendance_activity.this, toastString, Toast.LENGTH_LONG).show();
                 toastString = null;
             }
@@ -93,8 +99,8 @@ public class attendance_activity extends AppCompatActivity {
 
         if (savedInstanceState != null) //meaning the activity was redrawn, so saved data from the bundle must be retrieved
         {
-            studentAttendanceArray = (boolean[])savedInstanceState.getSerializable("studentAttendanceArray");
-            jsonIndex = (int)savedInstanceState.getSerializable("jsonIndex");
+            studentAttendanceArray = (boolean[]) savedInstanceState.getSerializable("studentAttendanceArray");
+            jsonIndex = (int) savedInstanceState.getSerializable("jsonIndex");
             handlerToUpdateUi.postDelayed(runnableToUpdateUi, 0); //redraw UI
         }
 
@@ -106,7 +112,6 @@ public class attendance_activity extends AppCompatActivity {
         button_present = (Button) findViewById(R.id.button_present);
         button_back = (Button) findViewById(R.id.button_back);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
 
 
         //getting intent from previous activity
@@ -159,17 +164,47 @@ public class attendance_activity extends AppCompatActivity {
     }
 
     //this function will upload the attendance to the server
-    public void uploadAttendance() {
-        String stringToSend = ""; //string ready to be written to
-        for (int tempCounter = 0; tempCounter < totalJsonEntries; tempCounter++) //adds the attendance to the string
-        {
-            if (studentAttendanceArray[tempCounter]) //meaning the student is present
-                stringToSend = stringToSend + "P"; //a simple 'P' if the student is present
-            else
-                stringToSend = stringToSend + "A"; //an 'A' character if the student is absent
+    Runnable runnableToUploadAttendance = new Runnable() {
+        @Override
+        public void run() {
+            String stringToSend = ""; //string ready to be written to
+            for (int tempCounter = 0; tempCounter < totalJsonEntries; tempCounter++) //adds the attendance to the string
+            {
+                if (studentAttendanceArray[tempCounter]) //meaning the student is present
+                    stringToSend = stringToSend + "P"; //a simple 'P' if the student is present
+                else
+                    stringToSend = stringToSend + "A"; //an 'A' character if the student is absent
+            }
+            try {
+                if (USE_SSL) {
+                    URL url = new URL(address + CLASS_ATTENDANCE_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode + "&attendance=" + stringToSend); //setting the URL to make the GET request
+                    Log.d(DEBUG_TAG, "Connecting to " + url.toString());
+                    Log.d(DEBUG_TAG, "RUNNING WITH SSL");
+                    HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
+                    httpsURLConnection.connect(); //connect to the server
+                    httpsURLConnection.disconnect(); //disconnect
+                } else {
+                    URL url = new URL(address + CLASS_ATTENDANCE_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode + "&attendance=" + stringToSend); //setting the URL to make the GET request
+                    Log.d(DEBUG_TAG, "Connecting to " + url.toString());
+                    Log.d(DEBUG_TAG, "RUNNING WITHOUT SSL");
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection(); //opening connection
+                    httpURLConnection.setRequestMethod("GET"); //setting the method of the request
+                    httpURLConnection.connect(); //connect to the URL
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+                    responseFromTheServer = bufferedReader.readLine(); //receive the response from the server
+                    Log.d(DEBUG_TAG, responseFromTheServer);
+                    httpURLConnection.disconnect(); //disconnect from the server
+                }
+                if(responseFromTheServer.compareToIgnoreCase("INSERTED_SUCCESSFULLY") == 0) { //this means the data was inserted successfully into the database
+                    toastString = "Attendance submitted successfully!";
+                    handlerToUpdateUi.postDelayed(runnableToUpdateUi,0); //show toast
+                    finish(); //exit activity
+                }
+            } catch (Exception e) {
+                Log.d(DEBUG_TAG, e.toString());
+            }
         }
-    }
-
+    };
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
