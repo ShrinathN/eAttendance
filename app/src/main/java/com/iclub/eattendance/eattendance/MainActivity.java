@@ -2,22 +2,20 @@
 //Description: This activity is the main and launcher activity for this application. This will enable the user to enter their details using a simple barcode reader application
 package com.iclub.eattendance.eattendance;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -27,17 +25,13 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import com.iclub.eattendance.eattendance.ServerSelectorAlert;
-
 //currently set to testing URL
 
 public class MainActivity extends AppCompatActivity {
     // to be used as macros
-    final boolean USE_SSL = false;
     final String DEBUG_TAG = "DEBUG_TAG";
     //==============HAVE TO CHANGE==============
-    final String CLASS_INFO_SUBMISSION_URL = "http://192.168.0.110/www/login.php";
-    final String CLASS_INFO_SUBMISSION_URL_SSL = "https://192.168.0.110/www/login.php";
+    final String CLASS_INFO_SUBMISSION_URL = "/www/login.php";
     final byte BARCODE_SCAN = 1;
     final byte QRCODE_SCAN = 2;
 
@@ -45,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     public String barcode = null;
     public String qrcode = null;
     public String toastString = null; //used to make toasts from inside a thread
+    public String server = "http://192.168.0.110"; //this is the default server, change this pls
+    public boolean USE_SSL = false;
 
     //just some UI elements being declared
     Button button_scanBarcode;
@@ -75,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final Context context = this;
 
         if (savedInstanceState != null) //meaning the activity was redrawn, so saved data from the bundle must be retrieved
         {
@@ -109,14 +107,17 @@ public class MainActivity extends AppCompatActivity {
                         String responseFromTheServer; //this will contain the response from the server ofc
                         try {
                             if (USE_SSL) { //TODO: Fix HTTPS/SSL operation
-                                URL url = new URL(CLASS_INFO_SUBMISSION_URL_SSL + "?staff_id=" + barcode + "&class_id=" + qrcode); //setting the URL to make the GET request
+                                URL url = new URL(server + CLASS_INFO_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode); //setting the URL to make the GET request
                                 Log.d(DEBUG_TAG, "Connecting to " + url.toString());
                                 Log.d(DEBUG_TAG, "RUNNING WITH SSL");
                                 HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
                                 httpsURLConnection.connect(); //connect to the server
+                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
+                                responseFromTheServer = bufferedReader.readLine(); //receive the response from the server
+                                Log.d(DEBUG_TAG, responseFromTheServer);
                                 httpsURLConnection.disconnect(); //disconnect
                             } else { //if SSL is not needed
-                                URL url = new URL(CLASS_INFO_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode); //setting the URL to make the GET request
+                                URL url = new URL(server + CLASS_INFO_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode); //setting the URL to make the GET request
                                 Log.d(DEBUG_TAG, "Connecting to " + url.toString());
                                 Log.d(DEBUG_TAG, "RUNNING WITHOUT SSL");
                                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -136,12 +137,16 @@ public class MainActivity extends AppCompatActivity {
                                 intentToStartReattendanceActivity.putExtra("responseFromTheServer", responseFromTheServer);
                                 intentToStartReattendanceActivity.putExtra("barcode", barcode);
                                 intentToStartReattendanceActivity.putExtra("qrcode", qrcode);
+                                intentToStartReattendanceActivity.putExtra("server", server);
+                                intentToStartReattendanceActivity.putExtra("USE_SSL", USE_SSL);
                                 startActivity(intentToStartReattendanceActivity);
                             } else {
                                 Intent intentToStartAttendanceActivity = new Intent(MainActivity.this, attendance_activity.class);
                                 intentToStartAttendanceActivity.putExtra("responseFromTheServer", responseFromTheServer);
                                 intentToStartAttendanceActivity.putExtra("barcode", barcode);
                                 intentToStartAttendanceActivity.putExtra("qrcode", qrcode);
+                                intentToStartAttendanceActivity.putExtra("server", server);
+                                intentToStartAttendanceActivity.putExtra("USE_SSL", USE_SSL);
                                 startActivity(intentToStartAttendanceActivity);
                             }
                         } catch (Exception e) {
@@ -196,21 +201,41 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int id = menuItem.getItemId();
         if (id == R.id.setservermenu) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            LayoutInflater inflater = getLayoutInflater();
-            builder.setView(inflater.inflate(R.layout.serverselectorlayout,null))
-                    .setPositiveButton("Set", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
 
+            final Dialog dialog = new Dialog(this);
+            dialog.setContentView(R.layout.serverselectorlayout);
+            final EditText editText_server = (EditText)dialog.findViewById(R.id.editText_server);
+            final CheckBox checkbox_useSSL = (CheckBox)dialog.findViewById(R.id.checkbox_useSSL);
+            Button button_set = (Button)dialog.findViewById(R.id.button_set);
+            button_set.setOnClickListener(new View.OnClickListener() { //set button
+                @Override
+                public void onClick(View view) {
+                    if(editText_server.getText().length() == 0) // that means this is empty
+                    {
+                        toastString = "Please select a server first!~";
+                        handlerToUpdateUi.postDelayed(runnableToUpdateUi, 0);
+                    } else { //meaning the string is not empty
+                        if(USE_SSL = checkbox_useSSL.isChecked()) //USE_SSL is checked
+                        {
+                            server = "https://" + editText_server.getText().toString();
+                        } else { //USE_SSL is not checked
+                            server = "http://" + editText_server.getText().toString();
                         }
-                    })
-                    .show();
+                        Log.d(DEBUG_TAG, "SETTING SERVER=" + server + "\nUSING_SSL=" + USE_SSL);
+                    }
+                    dialog.dismiss();
+                }
+            });
+
+            Button button_cancel = (Button)dialog.findViewById(R.id.button_cancel);
+            button_cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
         }
         return true;
     }

@@ -22,7 +22,6 @@ import javax.net.ssl.HttpsURLConnection;
 public class attendance_activity extends Activity {
 
     //macros
-    final boolean USE_SSL = false;
     final String DEBUG_TAG = "DEBUG_TAG";
     final String CLASS_ATTENDANCE_SUBMISSION_URL = "/www/attendance.php";
 
@@ -46,7 +45,8 @@ public class attendance_activity extends Activity {
     public String toastString = null;
     public String qrcode = null;
     public String barcode = null;
-    public String address;
+    public String server = null;
+    public boolean USE_SSL = false;
 
     //runnable and handler to update UI widgets
     final Handler handlerToUpdateUi = new Handler();
@@ -119,6 +119,8 @@ public class attendance_activity extends Activity {
         responseFromTheServer = intentFromMainActivity.getStringExtra("responseFromTheServer"); //getting the JSON response
         qrcode = intentFromMainActivity.getStringExtra("qrcode");
         barcode = intentFromMainActivity.getStringExtra("barcode");
+        server = intentFromMainActivity.getStringExtra("server");
+        USE_SSL = intentFromMainActivity.getBooleanExtra("USE_SSL", false);
         try {
             jsonArray = new JSONArray(responseFromTheServer); //parsing the JSON
             totalJsonEntries = jsonArray.length(); //getting the number of entries in the JSON
@@ -177,14 +179,14 @@ public class attendance_activity extends Activity {
             }
             try {
                 if (USE_SSL) {
-                    URL url = new URL(address + CLASS_ATTENDANCE_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode + "&attendance=" + stringToSend); //setting the URL to make the GET request
+                    URL url = new URL(server + CLASS_ATTENDANCE_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode + "&attendance=" + stringToSend); //setting the URL to make the GET request
                     Log.d(DEBUG_TAG, "Connecting to " + url.toString());
                     Log.d(DEBUG_TAG, "RUNNING WITH SSL");
                     HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
                     httpsURLConnection.connect(); //connect to the server
                     httpsURLConnection.disconnect(); //disconnect
                 } else {
-                    URL url = new URL(address + CLASS_ATTENDANCE_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode + "&attendance=" + stringToSend); //setting the URL to make the GET request
+                    URL url = new URL(server + CLASS_ATTENDANCE_SUBMISSION_URL + "?staff_id=" + barcode + "&class_id=" + qrcode + "&attendance=" + stringToSend); //setting the URL to make the GET request
                     Log.d(DEBUG_TAG, "Connecting to " + url.toString());
                     Log.d(DEBUG_TAG, "RUNNING WITHOUT SSL");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection(); //opening connection
