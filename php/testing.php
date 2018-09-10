@@ -1,5 +1,4 @@
 <?php
-
-$cou = 3;
+$cou = $todays_date = date('Y-m-d');
 echo $cou;
 ?>

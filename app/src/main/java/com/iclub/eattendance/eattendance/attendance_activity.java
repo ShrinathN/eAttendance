@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -24,6 +25,9 @@ public class attendance_activity extends Activity {
     //macros
     final String DEBUG_TAG = "DEBUG_TAG";
     final String CLASS_ATTENDANCE_SUBMISSION_URL = "/www/attendance.php";
+//    final String ATTENDANCE_TYPE = "ATTENDANCE_TYPE";
+    final String REATTENDANCE = "REATTENDANCE";
+    final String NEWATTENDANCE = "NEWATTENDANCE";
 
     //defining all the UI widgets to be used
     TextView label_studentsPresent;
@@ -47,6 +51,7 @@ public class attendance_activity extends Activity {
     public String barcode = null;
     public String server = null;
     public boolean USE_SSL = false;
+    public String ATTENDANCE_TYPE = null;
 
     //runnable and handler to update UI widgets
     final Handler handlerToUpdateUi = new Handler();
@@ -57,8 +62,15 @@ public class attendance_activity extends Activity {
             if (jsonIndex == totalJsonEntries) {
                 button_absent.setVisibility(View.INVISIBLE);
                 button_present.setVisibility(View.INVISIBLE);
-                Thread threadToUploadAttendance = new Thread(runnableToUploadAttendance);
-                threadToUploadAttendance.start();
+                Intent intentToStartOverviewActivity = new Intent(attendance_activity.this, OverviewActivity.class);
+                intentToStartOverviewActivity.putExtra("qrcode", qrcode);
+                intentToStartOverviewActivity.putExtra("barcode", barcode);
+                intentToStartOverviewActivity.putExtra("USE_SSL", USE_SSL);
+                intentToStartOverviewActivity.putExtra("server", server);
+                intentToStartOverviewActivity.putExtra("studentAttendanceArray", studentAttendanceArray);
+                intentToStartOverviewActivity.putExtra("responseFromTheServer", responseFromTheServer);
+                intentToStartOverviewActivity.putExtra("ATTENDANCE_TYPE", ATTENDANCE_TYPE);
+                startActivity(intentToStartOverviewActivity);
             } else {
                 button_absent.setVisibility(View.VISIBLE);
                 button_present.setVisibility(View.VISIBLE);
@@ -120,7 +132,15 @@ public class attendance_activity extends Activity {
         qrcode = intentFromMainActivity.getStringExtra("qrcode");
         barcode = intentFromMainActivity.getStringExtra("barcode");
         server = intentFromMainActivity.getStringExtra("server");
+        ATTENDANCE_TYPE = intentFromMainActivity.getStringExtra("ATTENDANCE_TYPE");
         USE_SSL = intentFromMainActivity.getBooleanExtra("USE_SSL", false);
+        Log.d(DEBUG_TAG, "QRCODE=" + qrcode + "\n");
+        Log.d(DEBUG_TAG, "Barcode=" + barcode + "\n");
+        Log.d(DEBUG_TAG, "server=" + server + "\n");
+        Log.d(DEBUG_TAG, "useSSL=" + USE_SSL+ "\n");
+
+
+
         try {
             jsonArray = new JSONArray(responseFromTheServer); //parsing the JSON
             totalJsonEntries = jsonArray.length(); //getting the number of entries in the JSON
@@ -161,10 +181,9 @@ public class attendance_activity extends Activity {
     }
 
     //this is to disable back press, restricting the user from going back to the login screen
-    @Override
-    public void onBackPressed() {
-    }
 
+
+    /*
     //this function will upload the attendance to the server
     Runnable runnableToUploadAttendance = new Runnable() {
         @Override
@@ -198,15 +217,20 @@ public class attendance_activity extends Activity {
                     httpURLConnection.disconnect(); //disconnect from the server
                 }
                 if(responseFromTheServer.compareToIgnoreCase("INSERTED_SUCCESSFULLY") == 0) { //this means the data was inserted successfully into the database
-                    toastString = "Attendance submitted successfully!";
-                    handlerToUpdateUi.postDelayed(runnableToUpdateUi,0); //show toast
-                    finish(); //exit activity
+                    Intent intentToStartReattendanceActivity= new Intent(attendance_activity.this, OverviewActivity.class);
+                    intentToStartReattendanceActivity.putExtra("barcode", barcode);
+                    intentToStartReattendanceActivity.putExtra("qrcode", qrcode);
+                    intentToStartReattendanceActivity.putExtra("server", server);
+                    intentToStartReattendanceActivity.putExtra("USE_SSL", USE_SSL);
+                    startActivity(intentToStartReattendanceActivity);
                 }
             } catch (Exception e) {
                 Log.d(DEBUG_TAG, e.toString());
             }
         }
     };
+
+    */
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

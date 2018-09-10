@@ -30,6 +30,10 @@ import javax.net.ssl.HttpsURLConnection;
 public class MainActivity extends AppCompatActivity {
     // to be used as macros
     final String DEBUG_TAG = "DEBUG_TAG";
+    final String ATTENDANCE_TYPE = "ATTENDANCE_TYPE";
+    final String REATTENDANCE = "REATTENDANCE";
+    final String NEWATTENDANCE = "NEWATTENDANCE";
+
     //==============HAVE TO CHANGE==============
     final String CLASS_INFO_SUBMISSION_URL = "/www/login.php";
     final byte BARCODE_SCAN = 1;
@@ -128,17 +132,21 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d(DEBUG_TAG, responseFromTheServer);
                                 httpURLConnection.disconnect(); //disconnect from the server
                             }
-                            if (responseFromTheServer.compareToIgnoreCase("ERROR_ID") == 0) { //if ID is invalid
-                                toastString = "Invalid ID";
-                            } else if (responseFromTheServer.compareToIgnoreCase("ERROR_CLASS") == 0) { //if class is invalid
-                                toastString = "Invalid Class";
-                            } else if (responseFromTheServer.compareToIgnoreCase("ERROR_ATTENDANCE_ALREADY_BEEN_TAKEN_FOR_TODAY") == 0) { //this means the attendance has been already taken for today, go to reattendance activity
-                                Intent intentToStartReattendanceActivity = new Intent(MainActivity.this, Reattendance_activity.class);
+                            if (responseFromTheServer.compareToIgnoreCase("  ERROR_ID") == 0) { //if ID is invalid
+                                toastString = "Invalid ID\nPlease check the barcode";
+                                handlerToUpdateUi.postDelayed(runnableToUpdateUi,0);
+                            } else if (responseFromTheServer.compareToIgnoreCase("  ERROR_CLASS") == 0) { //if class is invalid
+                                toastString = "Invalid Class\nPlease check the QR Code";
+                                handlerToUpdateUi.postDelayed(runnableToUpdateUi,0);
+                            } else if (responseFromTheServer.compareToIgnoreCase("  ERROR_ATTENDANCE_ALREADY_TAKEN") == 0) { //this means the attendance has been already taken for today, go to reattendance activity
+                                Log.d(DEBUG_TAG, "ATTENDANCE ALREADY TAKEN FOR TODAY, STARTING REATTENDDANCE ACTIVITY");
+                                Intent intentToStartReattendanceActivity = new Intent(MainActivity.this, OverviewActivity.class);
                                 intentToStartReattendanceActivity.putExtra("responseFromTheServer", responseFromTheServer);
                                 intentToStartReattendanceActivity.putExtra("barcode", barcode);
                                 intentToStartReattendanceActivity.putExtra("qrcode", qrcode);
                                 intentToStartReattendanceActivity.putExtra("server", server);
                                 intentToStartReattendanceActivity.putExtra("USE_SSL", USE_SSL);
+                                intentToStartReattendanceActivity.putExtra(ATTENDANCE_TYPE, REATTENDANCE);
                                 startActivity(intentToStartReattendanceActivity);
                             } else {
                                 Intent intentToStartAttendanceActivity = new Intent(MainActivity.this, attendance_activity.class);
@@ -147,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                                 intentToStartAttendanceActivity.putExtra("qrcode", qrcode);
                                 intentToStartAttendanceActivity.putExtra("server", server);
                                 intentToStartAttendanceActivity.putExtra("USE_SSL", USE_SSL);
+                                intentToStartAttendanceActivity.putExtra(ATTENDANCE_TYPE, NEWATTENDANCE);
                                 startActivity(intentToStartAttendanceActivity);
                             }
                         } catch (Exception e) {

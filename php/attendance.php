@@ -12,7 +12,7 @@ $class_attendance_id = $class_id . "-attendance";
 $attendance = $_GET["attendance"];
 
 //getting string with today's date
-$todays_date = date('D, d M Y');
+$todays_date = date('Y-m-d');
 
 //starting a connection to MySQL server using above details
 $sql_connection = new mysqli($servername, $username, $password, $database);

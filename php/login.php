@@ -11,7 +11,7 @@
   $staff_id = $_GET["staff_id"];
   $class_id = $_GET["class_id"];
   $class_attendance_id = $class_id . "-attendance";
-  $todays_date = date('D, d M Y');
+  $todays_date = date('Y-m-d');
 
   //starting a connection to MySQL server using above details
   $conn = new mysqli($servername, $username, $password, $database);
@@ -39,7 +39,7 @@
       }
       else if($result->num_rows != 0)//else if the number of rows with current date is != 0, that means the attendance has already been taken
       {
-        echo "ERROR_ATTENDANCE_ALREADY_BEEN_TAKEN_FOR_TODAY"; //sends the error message
+        echo "ERROR_ATTENDANCE_ALREADY_TAKEN"; //sends the error message
         exit();
       }
     }
