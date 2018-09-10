@@ -1,6 +1,10 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:icon="@drawable/testicon"
-    android:id="@+id/button_submit"
-    android:title="Submit"/>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/button_submit"
+        android:icon="@android:drawable/stat_sys_upload"
+        android:title="@string/submit"
+        app:showAsAction="always"/>
 
 </menu>

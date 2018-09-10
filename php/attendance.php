@@ -36,6 +36,6 @@ $to_insert .= ",\"$todays_date\",\"$staff_id\")"; //adds todays date and the sta
 $result = $sql_connection->query($to_insert);
 if($result != false)
 {
-  echo "INSERTED_SUCCESSFULLY";
+  echo "OK";
 }
 ?>

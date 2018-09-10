@@ -24,7 +24,6 @@ public class attendance_activity extends Activity {
 
     //macros
     final String DEBUG_TAG = "DEBUG_TAG";
-    final String CLASS_ATTENDANCE_SUBMISSION_URL = "/www/attendance.php";
 //    final String ATTENDANCE_TYPE = "ATTENDANCE_TYPE";
     final String REATTENDANCE = "REATTENDANCE";
     final String NEWATTENDANCE = "NEWATTENDANCE";
@@ -117,6 +116,7 @@ public class attendance_activity extends Activity {
         }
 
 
+        //declaring all the UI elements
         label_studentsPresent = (TextView) findViewById(R.id.label_studentsPresent);
         label_studentsAbsent = (TextView) findViewById(R.id.label_studentsAbsent);
         label_studentsInfo = (TextView) findViewById(R.id.label_studentsInfo);

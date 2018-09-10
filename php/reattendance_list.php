@@ -1,5 +1,5 @@
 <?php
-//this script assumes the attendance for today has already been taken, and will need to be updated, this will be done by first sending the current attendance details, then deleting them, and then finally receiving and entering the updated details
+//this script assumes the attendance for today has already been taken, and will need to be updated, this will be done by first sending the current attendance details, then deleting them, and then finally receiving and entering the updated details. This script will send the current attendance details
 //details about the MySQL server
 $servername = "localhost";
 $username = "root";
@@ -14,6 +14,7 @@ $class_attendance_id = $class_id . "-attendance";
 $todays_date = date('Y-m-d');
 
 $conn = new mysqli($servername, $username, $password, $database);
+
 
 $que = "select * from `$class_attendance_id`";//query to receive all the rows in the table, ie list of all
 $result = $conn->query($que); //running the query
