@@ -24,12 +24,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             student_name = (TextView) view.findViewById(R.id.student_name);
             reg_no = (TextView) view.findViewById(R.id.reg_no);
             status = (Switch) view.findViewById(R.id.status);
-            status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            status.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                public void onClick(View view) {
                     Student s = (Student)studlist.get(idNumber);
-                    s.setStatus(compoundButton.isChecked());
-//                    Log.d("DEBUG_TAG", s.getname() + "\n" + s.getreg() + "\n" + s.getstatus());
+                    s.setStatus(status.isChecked());
+                    Log.d("DEBUG_TAG", s.getname() + "\n" + s.getreg() + "\n" + s.getstatus() + "\n" + idNumber);
                 }
             });
         }

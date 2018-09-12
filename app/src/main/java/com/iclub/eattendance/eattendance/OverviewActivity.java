@@ -50,7 +50,7 @@ public class OverviewActivity extends AppCompatActivity {
     public String ATTENDANCE_TYPE = null;
     public String stringToSend = "";
     public int jsonIndex = 0; //current counter
-    public boolean networkThreadNotRunning = false;
+    public boolean networkThreadNotRunning = true;
 
     private List<Student> studentList = new ArrayList<>();
     private RecyclerView SRec;
@@ -236,7 +236,7 @@ public class OverviewActivity extends AppCompatActivity {
             for(jsonIndex = 0; jsonIndex < totalJsonEntries; jsonIndex++)
                 stringToSend = stringToSend + (studentList.get(jsonIndex).getstatus()?"P":"A"); // P for present, and A for absent
             obtainDetails(server + ATTENDANCE_PATH + "?staff_id=" + barcode + "&class_id=" + qrcode + "&attendance=" + stringToSend);
-            while(!networkThreadNotRunning){};
+            while(!networkThreadNotRunning){}
             Log.d(DEBUG_TAG,Integer.toString(responseFromTheServer.compareTo("OK")));
             if(responseFromTheServer.compareTo("OK") == 0)
             {
@@ -248,7 +248,18 @@ public class OverviewActivity extends AppCompatActivity {
         }
         else if (ATTENDANCE_TYPE.compareTo(REATTENDANCE) == 0) //attendance is being updated
         {
-
+            for(jsonIndex = 0; jsonIndex < totalJsonEntries; jsonIndex++)
+                stringToSend = stringToSend + (studentList.get(jsonIndex).getstatus()?"P":"A"); // P for present, and A for absent
+            obtainDetails(server + REATTENDANCE_PATH + "?staff_id=" + barcode + "&class_id=" + qrcode + "&attendance=" + stringToSend);
+            while(!networkThreadNotRunning){}
+            Log.d(DEBUG_TAG,Integer.toString(responseFromTheServer.compareTo("OK")));
+            if(responseFromTheServer.compareTo("OK") == 0)
+            {
+                Log.d(DEBUG_TAG,"INSIDE THIS");
+                Intent intentToStartResultActivity = new Intent(this, ResultActivity.class);
+                intentToStartResultActivity.putExtra("resultString", "The attendance was successfully updated into the database");
+                startActivity(intentToStartResultActivity);
+            }
         }
     }
 }
